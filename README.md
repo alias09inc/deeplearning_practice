@@ -5,7 +5,8 @@
 -   Windows11 + WSL(Ubuntu22.04)
 -   Ryzen 7 4800HS
 -   GeForce GTX 1660 Ti Max-Q
--   Python 3.10.6
+-   Python: 3.10.6
+-   Pytorch: 2.0.1
 -   CUDA Version: 12.2
 -   NVCC: 11.5
 
