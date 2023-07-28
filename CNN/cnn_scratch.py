@@ -12,15 +12,17 @@ import torchsummary
 use_cuda = torch.cuda.is_available()
 print('Use CUDA:', use_cuda)
 
-train_data = torchvision.datasets.MNIST(root="../data", train=True, transform=transforms.ToTensor(), download=True)
-test_data = torchvision.datasets.MNIST(root="../data", train=False, transform=transforms.ToTensor(), download=True)
+transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),torchvision.transforms.Normalize((0.5,), (0.5,))])
+
+train_data = torchvision.datasets.MNIST(root="../data", train=True, transform=transform, download=True)
+test_data = torchvision.datasets.MNIST(root="../data", train=False, transform=transform, download=True)
 
 class CNN(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1)
-        self.activation = nn.LeakyReLU()
+        self.activation = nn.ReLU()
         self.pool = nn.MaxPool2d(2, 2)
         self.l1 = nn.Linear(7*7*32, 1024)
         self.l2 = nn.Linear(1024, 1024)
@@ -36,7 +38,7 @@ class CNN(nn.Module):
         h = self.activation(self.l1(h))
         h = self.activation(self.l2(h))
         h = self.l3(h)
-        h = self.final(h)
+        # h = self.final(h)
         return h
 
 model = CNN()
@@ -44,6 +46,7 @@ if use_cuda:
     model.cuda()
 
 optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+optimizer_adam = torch.optim.Adam(model.parameters(), lr=0.01)
 
 if use_cuda:
     torchsummary.summary(model, (1, 28, 28), device='cuda')
@@ -82,7 +85,7 @@ for epoch in range(1, epoch_num+1):   # epochのforループ
         loss = criterion(y, label)
         model.zero_grad()
         loss.backward()
-        optimizer.step()
+        optimizer_adam.step()
 
         # 学習経過を確認するための処理
         sum_loss += loss.item()
